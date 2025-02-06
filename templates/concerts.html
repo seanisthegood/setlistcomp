@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attended Concerts</title>
+</head>
+<body>
+    <h1>Attended Concerts for {{ username }}</h1>
+    <ul>
+        {% for concert in concerts %}
+            <li>
+                <strong>{{ concert.artist.name }}</strong> - {{ concert.eventDate }} in {{ concert.venue.city.name }}at {{ concert.venue.name }}
+                <ul>
+                    {% if concert.youtube_links %}
+                        {% for link in concert.youtube_links %}
+                            <li><a href="{{ link }}" target="_blank">Watch on YouTube</a></li>
+                        {% endfor %}
+                    {% else %}
+                        <li>No live recordings found.</li>
+                    {% endif %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
