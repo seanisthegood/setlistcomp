@@ -46,7 +46,7 @@ def search_youtube_live_videos(artist, city, date, venue):
         "part": "snippet",
         "q": query,
         "key": YOUTUBE_API_KEY,
-        "maxResults": 1,  # Get only 1 result
+        "maxResults": 3,  # Get only 1 result
         "type": "video"
     }
 
@@ -69,6 +69,3 @@ def search_youtube_live_videos(artist, city, date, venue):
     else:
         print("YouTube API Error:", response.status_code, response.text)
         return None
-
-    print(f"❌ No results found for {artist} at {venue} on {formatted_date}")
-    return None

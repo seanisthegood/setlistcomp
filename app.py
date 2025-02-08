@@ -1,7 +1,6 @@
-from flask import Flask, jsonify, render_template, request, session
+from flask import Flask, jsonify, render_template, request
 import requests
 import os
-from youtube_api import search_youtube_live_videos
 from set_listfm_api import get_attended_concerts, attach_youtube_links
 from dotenv import load_dotenv
 
