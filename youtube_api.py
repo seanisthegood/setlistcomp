@@ -61,11 +61,16 @@ def search_youtube_live_videos(artist, city, date, venue):
     if response.status_code == 200:
         results = response.json().get("items", [])
         print(f"📊 Results: {results}")
-        if results:
-            video = results[0]
+        video_links = []
+        for video in results:
             video_link = f"https://www.youtube.com/watch?v={video['id']['videoId']}"
             print(f"✅ Found video: {video_link}")  # Debugging
-            return video_link  # Return the first matching video
+            video_links.append(video_link)
+        if video_links:
+            return video_links  # Return all matching videos
     else:
         print("YouTube API Error:", response.status_code, response.text)
         return None
+
+    print(f"❌ No results found for {artist} at {venue} on {formatted_date}")
+    return None

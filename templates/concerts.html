@@ -12,11 +12,11 @@
             <li>
                 <strong>{{ concert.artist.name }}</strong> - {{ concert.eventDate }} in {{ concert.venue.city.name }}at {{ concert.venue.name }}
                 <ul>
-                    {% if concert.youtube_links %}
+                    {% for video in concert.youtube_links %}
                        
-                            <li><a href="{{ concert.youtube_links }}" target="_blank">Watch on YouTube</a></li>
-                        
-                    {% else %}
+                            <li><a href="{{ video }}" target="_blank">Watch on YouTube</a></li>
+                    {% endfor %}
+                    {% if concert.youtube_links|length == 0 %}
                         <li>No live recordings found.</li>
                     {% endif %}
                 </ul>

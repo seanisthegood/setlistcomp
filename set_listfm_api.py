@@ -69,10 +69,14 @@ def attach_youtube_links(concerts):
         venue = concert["venue"]["name"]         # ✅ Extract venue
         
         # Fetch actual YouTube links
-        youtube_links = search_youtube_live_videos(artist, city, date, venue)
-        print(f"Found YouTube link: {youtube_links}")
+        video_links = search_youtube_live_videos(artist, city, date, venue)
+        if video_links is None:
+            video_links = []
+        else:
+            for link in video_links:
+                print(link)
 
-        concert["youtube_links"] = youtube_links  # Attach YouTube links
+        concert["youtube_links"] = video_links  # Attach YouTube links
 
     return concerts
 

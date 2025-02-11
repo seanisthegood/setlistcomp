@@ -21,7 +21,7 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY")
 def index():
     username = request.args.get("username", "your_setlistfm_username")  # Replace default username
     concerts = get_attended_concerts(username)
-    concerts= attach_youtube_links(concerts)
+    concerts= attach_youtube_links(concerts[0:3])
 
     if concerts:
         return render_template("concerts.html", concerts=concerts, username=username)
