@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 import requests
 import os
-from set_listfm_api import get_attended_concerts, attach_youtube_links
+from set_listfm_api import get_attended_concerts, attach_youtube_links, get_youtube_links_for_concert
 from dotenv import load_dotenv
 from flask_cors import CORS  # Add CORS support
 
@@ -31,13 +31,19 @@ def get_concerts():
 # API endpoint to get YouTube videos for a specific concert
 @app.route("/api/concert/videos")
 def get_concert_videos():
-    concerts = get_attended_concerts(request.args.get("username"))
-    if concerts is None:
-        return jsonify({"error": "Failed to fetch concerts"}), 500
+    artist = request.args.get("artist")
+    venue = request.args.get("venue")
+    city = request.args.get("city")
+    date = request.args.get("date")
     
-    # Get the first few concerts with YouTube links
-    concerts_with_videos = attach_youtube_links(concerts[0:3])
-    return jsonify({"concerts": concerts_with_videos})
+    if not artist or not venue or not city or not date:
+        return jsonify({"error": "Missing required parameters"}), 400
+    
+    video_links = get_youtube_links_for_concert(artist, city, date, venue)
+    if video_links is None:
+        return jsonify({"error": "Failed to fetch YouTube links"}), 500
+    
+    return jsonify({"youtube_links": video_links})
 
 if __name__ == "__main__":
     app.run(debug=True)

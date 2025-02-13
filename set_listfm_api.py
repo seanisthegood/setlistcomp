@@ -80,3 +80,8 @@ def attach_youtube_links(concerts):
 
     return concerts
 
+def get_youtube_links_for_concert(artist, city, date, venue):
+    """Fetch YouTube links for a specific concert."""
+    video_links = search_youtube_live_videos(artist, city, date, venue)
+    return video_links
+
