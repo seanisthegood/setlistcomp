@@ -9,6 +9,7 @@ function App() {
   const [selectedDate, setSelectedDate] = useState([]);    // Initialize selected date state
   const [selectedArtist, setSelectedArtist] = useState([]); // Initialize selected artist state
   const [youtubeLinks, setYoutubeLinks] = useState({});    // Initialize YouTube links state
+  const [loading, setLoading] = useState(false);           // Initialize loading state
 
   // Function to fetch concerts from Flask API
   const fetchConcerts = () => {
@@ -17,9 +18,11 @@ function App() {
       return;
     }
 
+    setLoading(true);  // Set loading state to true
     fetch(`http://127.0.0.1:5000/api/concerts?username=${username}`)
       .then(response => response.json())
       .then(data => {
+        setLoading(false);  // Set loading state to false
         if (data.error) {
           setError(data.error);  // Update error state
           setConcerts([]);       // Clear concerts state
@@ -28,7 +31,10 @@ function App() {
           setError("");                // Clear error state
         }
       })
-      .catch(() => setError("Error fetching concerts."));  // Update error state
+      .catch(() => {
+        setLoading(false);  // Set loading state to false
+        setError("Error fetching concerts.");  // Update error state
+      });
   };
 
   // Function to search for a concert on YouTube
@@ -42,9 +48,11 @@ function App() {
     const { artist, venue, eventDate } = concert;
     const city = venue.city.name;
     console.log(`Searching YouTube for: ${artist.name} at ${venue.name} in ${city} on ${eventDate}`);
+    setLoading(true);  // Set loading state to true
     fetch(`http://127.0.0.1:5000/api/concert/videos?artist=${artist.name}&venue=${venue.name}&city=${city}&date=${eventDate}`)
       .then(response => response.json())
       .then(data => {
+        setLoading(false);  // Set loading state to false
         console.log("YouTube search response:", data);
         if (data.youtube_links) {
           setYoutubeLinks(prevLinks => ({
@@ -59,6 +67,7 @@ function App() {
         }
       })
       .catch(error => {
+        setLoading(false);  // Set loading state to false
         console.error("Error fetching YouTube videos:", error);
         setYoutubeLinks(prevLinks => ({
           ...prevLinks,
@@ -84,22 +93,22 @@ function App() {
   // Filter options based on selected criteria
   const filteredVenues = uniqueVenues.filter(venue => {
     return (
-      selectedArtist.length === 0 ||
-      concerts.some(concert => concert.venue.name === venue && selectedArtist.some(artist => concert.artist.name === artist.value))
+      (selectedDate.length === 0 || concerts.some(concert => concert.venue.name === venue && selectedDate.some(date => concert.eventDate === date.value))) &&
+      (selectedArtist.length === 0 || concerts.some(concert => concert.venue.name === venue && selectedArtist.some(artist => concert.artist.name === artist.value)))
     );
   });
 
   const filteredDates = uniqueDates.filter(date => {
     return (
-      selectedArtist.length === 0 ||
-      concerts.some(concert => concert.eventDate === date && selectedArtist.some(artist => concert.artist.name === artist.value))
+      (selectedVenue.length === 0 || concerts.some(concert => concert.eventDate === date && selectedVenue.some(venue => concert.venue.name === venue.value))) &&
+      (selectedArtist.length === 0 || concerts.some(concert => concert.eventDate === date && selectedArtist.some(artist => concert.artist.name === artist.value)))
     );
   });
 
   const filteredArtists = uniqueArtists.filter(artist => {
     return (
-      selectedVenue.length === 0 ||
-      concerts.some(concert => concert.artist.name === artist && selectedVenue.some(venue => concert.venue.name === venue.value))
+      (selectedVenue.length === 0 || concerts.some(concert => concert.artist.name === artist && selectedVenue.some(venue => concert.venue.name === venue.value))) &&
+      (selectedDate.length === 0 || concerts.some(concert => concert.artist.name === artist && selectedDate.some(date => concert.eventDate === date.value)))
     );
   });
 
@@ -118,6 +127,9 @@ function App() {
 
       {/* Display error messages */}
       {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {/* Display loading indicator */}
+      {loading && <p>Loading...</p>}
 
       {/* Dropdown menus for filtering */}
       <div>
@@ -158,15 +170,28 @@ function App() {
             {concert.venue.name}, {concert.venue.city.name}
             <button onClick={() => searchYouTube(concert)}>Search YouTube</button>
             {youtubeLinks[concert.eventDate] && (
-              <p>
+              <div>
                 {Array.isArray(youtubeLinks[concert.eventDate]) ? (
-                  youtubeLinks[concert.eventDate].map((link, idx) => (
-                    <a key={idx} href={link} target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
-                  ))
+                  youtubeLinks[concert.eventDate].map((link, idx) => {
+                    const videoId = link.split('v=')[1];
+                    const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                    return (
+                      <iframe
+                        key={idx}
+                        width="560"
+                        height="315"
+                        src={embedUrl}
+                        title={`YouTube video player ${idx}`}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      ></iframe>
+                    );
+                  })
                 ) : (
                   <span>{youtubeLinks[concert.eventDate]}</span>
                 )}
-              </p>
+              </div>
             )}
           </li>
         ))}
