@@ -1,43 +1,42 @@
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
+import './index.css';
 
 function App() {
-  const [username, setUsername] = useState("");  // Initialize username state
-  const [concerts, setConcerts] = useState([]);  // Initialize concerts state
-  const [error, setError] = useState("");        // Initialize error state
-  const [selectedVenue, setSelectedVenue] = useState([]);  // Initialize selected venue state
-  const [selectedDate, setSelectedDate] = useState([]);    // Initialize selected date state
-  const [selectedArtist, setSelectedArtist] = useState([]); // Initialize selected artist state
-  const [youtubeLinks, setYoutubeLinks] = useState({});    // Initialize YouTube links state
-  const [loading, setLoading] = useState(false);           // Initialize loading state
+  const [username, setUsername] = useState("");  
+  const [concerts, setConcerts] = useState([]);  
+  const [error, setError] = useState("");        
+  const [selectedVenue, setSelectedVenue] = useState([]);  
+  const [selectedDate, setSelectedDate] = useState([]);    
+  const [selectedArtist, setSelectedArtist] = useState([]); 
+  const [youtubeLinks, setYoutubeLinks] = useState({});    
+  const [loading, setLoading] = useState(false);  
 
-  // Function to fetch concerts from Flask API
   const fetchConcerts = () => {
     if (!username) {
-      setError("Enter your Setlist.fm username!");  // Update error state
+      setError("Enter your Setlist.fm username!");  
       return;
     }
 
-    setLoading(true);  // Set loading state to true
+    setLoading(true);  
     fetch(`http://127.0.0.1:5000/api/concerts?username=${username}`)
       .then(response => response.json())
       .then(data => {
-        setLoading(false);  // Set loading state to false
+        setLoading(false);  
         if (data.error) {
-          setError(data.error);  // Update error state
-          setConcerts([]);       // Clear concerts state
+          setError(data.error);  
+          setConcerts([]);       
         } else {
-          setConcerts(data.concerts);  // Update concerts state
-          setError("");                // Clear error state
+          setConcerts(data.concerts);  
+          setError("");                
         }
       })
       .catch(() => {
-        setLoading(false);  // Set loading state to false
-        setError("Error fetching concerts.");  // Update error state
+        setLoading(false);  
+        setError("Error fetching concerts.");  
       });
   };
 
-  // Function to search for a concert on YouTube
   const searchYouTube = (concert) => {
     console.log("Concert data:", concert);
     if (!concert || !concert.artist || !concert.venue || !concert.venue.city || !concert.eventDate) {
@@ -48,11 +47,11 @@ function App() {
     const { artist, venue, eventDate } = concert;
     const city = venue.city.name;
     console.log(`Searching YouTube for: ${artist.name} at ${venue.name} in ${city} on ${eventDate}`);
-    setLoading(true);  // Set loading state to true
+    setLoading(true);  
     fetch(`http://127.0.0.1:5000/api/concert/videos?artist=${artist.name}&venue=${venue.name}&city=${city}&date=${eventDate}`)
       .then(response => response.json())
       .then(data => {
-        setLoading(false);  // Set loading state to false
+        setLoading(false);  
         console.log("YouTube search response:", data);
         if (data.youtube_links) {
           setYoutubeLinks(prevLinks => ({
@@ -67,7 +66,7 @@ function App() {
         }
       })
       .catch(error => {
-        setLoading(false);  // Set loading state to false
+        setLoading(false);  
         console.error("Error fetching YouTube videos:", error);
         setYoutubeLinks(prevLinks => ({
           ...prevLinks,
@@ -76,12 +75,10 @@ function App() {
       });
   };
 
-  // Get unique venues, dates, and artists for dropdown menus
   const uniqueVenues = [...new Set(concerts.map(concert => concert.venue.name))];
   const uniqueDates = [...new Set(concerts.map(concert => concert.eventDate))];
   const uniqueArtists = [...new Set(concerts.map(concert => concert.artist.name))];
 
-  // Filter concerts based on selected criteria
   const filteredConcerts = concerts.filter(concert => {
     return (
       (selectedVenue.length === 0 || selectedVenue.some(venue => concert.venue.name === venue.value)) &&
@@ -90,7 +87,6 @@ function App() {
     );
   });
 
-  // Filter options based on selected criteria
   const filteredVenues = uniqueVenues.filter(venue => {
     return (
       (selectedDate.length === 0 || concerts.some(concert => concert.venue.name === venue && selectedDate.some(date => concert.eventDate === date.value))) &&
@@ -113,64 +109,64 @@ function App() {
   });
 
   return (
-    <div>
-      <h1>Find Your Attended Concerts</h1>
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-4 text-center">Find Your Attended Concerts</h1>
 
-      {/* Input field for username */}
-      <input
-        type="text"
-        placeholder="Enter your Setlist.fm username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}  // Update username state
-      />
-      <button onClick={fetchConcerts}>Fetch Concerts</button>
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Enter your Setlist.fm username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}  
+          className="border p-2 mb-4 w-full rounded"
+        />
+        <button onClick={fetchConcerts} className="bg-blue-500 text-white p-2 rounded w-full">Fetch Concerts</button>
+      </div>
 
-      {/* Display error messages */}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="text-red-500 text-center">{error}</p>}
+      {loading && <p className="text-center">Loading...</p>}
 
-      {/* Display loading indicator */}
-      {loading && <p>Loading...</p>}
-
-      {/* Dropdown menus for filtering */}
-      <div>
-        <label>
+      <div className="mb-4">
+        <label className="block mb-2">
           Venue:
           <Select
             isMulti
             options={filteredVenues.map(venue => ({ value: venue, label: venue }))}
             value={selectedVenue}
             onChange={setSelectedVenue}
+            className="mt-1"
           />
         </label>
-        <label>
+        <label className="block mb-2">
           Date:
           <Select
             isMulti
             options={filteredDates.map(date => ({ value: date, label: date }))}
             value={selectedDate}
             onChange={setSelectedDate}
+            className="mt-1"
           />
         </label>
-        <label>
+        <label className="block mb-2">
           Artist:
           <Select
             isMulti
             options={filteredArtists.map(artist => ({ value: artist, label: artist }))}
             value={selectedArtist}
             onChange={setSelectedArtist}
+            className="mt-1"
           />
         </label>
       </div>
 
-      {/* Display concert list */}
-      <ul>
+      <ul className="space-y-4">
         {filteredConcerts.map((concert, index) => (
-          <li key={index}>
+          <li key={index} className="border p-4 rounded shadow-md">
             <strong>{concert.artist.name}</strong> - {concert.eventDate} <br />
             {concert.venue.name}, {concert.venue.city.name}
-            <button onClick={() => searchYouTube(concert)}>Search YouTube</button>
+            <button onClick={() => searchYouTube(concert)} className="bg-green-500 text-white p-2 rounded mt-2">Search YouTube</button>
             {youtubeLinks[concert.eventDate] && (
-              <div>
+              <div className="mt-2">
                 {Array.isArray(youtubeLinks[concert.eventDate]) ? (
                   youtubeLinks[concert.eventDate].map((link, idx) => {
                     const videoId = link.split('v=')[1];
@@ -185,6 +181,7 @@ function App() {
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
+                        className="mt-2"
                       ></iframe>
                     );
                   })
