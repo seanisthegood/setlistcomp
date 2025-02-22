@@ -52,7 +52,10 @@ function Home() {
     console.log(`Searching YouTube for: ${artist.name} at ${venue.name} in ${city} on ${eventDate}`);
     setLoading(true);  
     fetch(`${process.env.REACT_APP_API_URL}/api/concert/videos?artist=${artist.name}&venue=${venue.name}&city=${city}&date=${eventDate}`)
-      .then(response => response.json())
+      .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+      })
       .then(data => {
         setLoading(false);  
         console.log("YouTube search response:", data);

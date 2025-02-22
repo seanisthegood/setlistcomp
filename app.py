@@ -3,6 +3,7 @@ import os
 from set_listfm_api import get_attended_concerts, get_youtube_links_for_concert
 from dotenv import load_dotenv
 from flask_cors import CORS  # Enable CORS for API calls
+import logging
 
 # Load environment variables
 load_dotenv()
@@ -14,6 +15,10 @@ app = Flask(__name__, static_folder='frontend/build', static_url_path='')
 CORS(app)  # Enable CORS for all routes
 
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 # 📌 Serve React's index.html for the root URL
 @app.route("/")
@@ -43,19 +48,24 @@ def get_concerts():
 # 📌 API endpoint to get YouTube videos for a concert
 @app.route("/api/concert/videos")
 def get_concert_videos():
-    artist = request.args.get("artist")
-    venue = request.args.get("venue")
-    city = request.args.get("city")
-    date = request.args.get("date")
-    
-    if not artist or not venue or not city or not date:
-        return jsonify({"error": "Missing required parameters"}), 400
-    
-    video_links = get_youtube_links_for_concert(artist, city, date, venue)
-    if video_links is None:
-        return jsonify({"error": "Failed to fetch YouTube links"}), 500
-    
-    return jsonify({"youtube_links": video_links})
+    try:
+        logger.debug(f"Received request with params: {request.args}")
+        artist = request.args.get("artist")
+        venue = request.args.get("venue")
+        city = request.args.get("city")
+        date = request.args.get("date")
+        
+        if not artist or not venue or not city or not date:
+            return jsonify({"error": "Missing required parameters"}), 400
+        
+        video_links = get_youtube_links_for_concert(artist, city, date, venue)
+        if video_links is None:
+            return jsonify({"error": "Failed to fetch YouTube links"}), 500
+        
+        return jsonify({"youtube_links": video_links})
+    except Exception as e:
+        logger.error(f"Error processing request: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 # 📌 Ensure Flask runs on Heroku’s assigned port
 if __name__ == "__main__":
