@@ -3,6 +3,9 @@ import Select from "react-select";
 import './index.css';
 
 function Home() {
+  const API_URL = process.env.REACT_APP_API_URL || 'https://setlistcomp-038fdfda1f06.herokuapp.com';
+  console.log('API_URL:', API_URL); // Debug log
+
   const [username, setUsername] = useState("");  
   const [concerts, setConcerts] = useState([]);  
   const [error, setError] = useState("");        
@@ -21,7 +24,8 @@ function Home() {
     }
 
     setLoading(true);  
-    fetch(`${process.env.REACT_APP_API_URL}/api/concerts?username=${username}`)
+    console.log('Fetching from:', `${API_URL}/api/concerts?username=${username}`); // Debug log
+    fetch(`${API_URL}/api/concerts?username=${username}`)
       .then(response => response.json())
       .then(data => {
         setLoading(false);  
@@ -50,8 +54,9 @@ function Home() {
     const { artist, venue, eventDate } = concert;
     const city = venue.city.name;
     console.log(`Searching YouTube for: ${artist.name} at ${venue.name} in ${city} on ${eventDate}`);
+    console.log('Searching YouTube at:', `${API_URL}/api/concert/videos`); // Debug log
     setLoading(true);  
-    fetch(`${process.env.REACT_APP_API_URL}/api/concert/videos?artist=${artist.name}&venue=${venue.name}&city=${city}&date=${eventDate}`)
+    fetch(`${API_URL}/api/concert/videos?artist=${artist.name}&venue=${venue.name}&city=${city}&date=${eventDate}`)
       .then(response => {
         console.log('Response status:', response.status);
         return response.json();
