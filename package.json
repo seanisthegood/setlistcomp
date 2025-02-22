@@ -20,8 +20,7 @@
   },
   "scripts": {
     "start": "cd frontend && npm start",
-    "heroku-postbuild": "cd frontend && npm install && npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "heroku-postbuild": "cd frontend && npm install && npm run build"
   },
   "keywords": [],
   "author": "",
@@ -38,5 +37,6 @@
     "onlyBuiltDependencies": [
       "esbuild"
     ]
-  }
+  },
+  "cacheDirectories": ["frontend/node_modules"]
 }

@@ -21,7 +21,7 @@ function Home() {
     }
 
     setLoading(true);  
-    fetch(`http://127.0.0.1:5000/api/concerts?username=${username}`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/concerts?username=${username}`)
       .then(response => response.json())
       .then(data => {
         setLoading(false);  
@@ -51,7 +51,7 @@ function Home() {
     const city = venue.city.name;
     console.log(`Searching YouTube for: ${artist.name} at ${venue.name} in ${city} on ${eventDate}`);
     setLoading(true);  
-    fetch(`http://127.0.0.1:5000/api/concert/videos?artist=${artist.name}&venue=${venue.name}&city=${city}&date=${eventDate}`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/concert/videos?artist=${artist.name}&venue=${venue.name}&city=${city}&date=${eventDate}`)
       .then(response => response.json())
       .then(data => {
         setLoading(false);  
