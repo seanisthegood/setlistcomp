@@ -1,21 +1,33 @@
-from flask import Flask, jsonify, request
-import requests
+from flask import Flask, jsonify, request, send_from_directory
 import os
-from set_listfm_api import get_attended_concerts, attach_youtube_links, get_youtube_links_for_concert
+from set_listfm_api import get_attended_concerts, get_youtube_links_for_concert
 from dotenv import load_dotenv
-from flask_cors import CORS  # Add CORS support
+from flask_cors import CORS  # Enable CORS for API calls
 
 # Load environment variables
 load_dotenv()
 API_KEY = os.getenv("SETLISTFM_API_KEY")
 USER_AGENT = os.getenv("USER_AGENT")
 
-app = Flask(__name__)
+# Initialize Flask app
+app = Flask(__name__, static_folder='frontend/build', static_url_path='/')
 CORS(app)  # Enable CORS for all routes
 
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
-# API endpoint to get concerts for a username
+# 📌 Serve React's index.html for the root URL
+@app.route("/")
+def serve_react():
+    return send_from_directory(app.static_folder, "index.html")
+
+# 📌 Serve React's index.html for unknown routes (fixes React Router issues)
+@app.route("/<path:path>")
+def serve_static_files(path):
+    if os.path.exists(os.path.join(app.static_folder, path)):  # If file exists, serve it
+        return send_from_directory(app.static_folder, path)
+    return send_from_directory(app.static_folder, "index.html")  # Otherwise, serve React
+
+# 📌 API endpoint to get concerts for a username
 @app.route("/api/concerts")
 def get_concerts():
     username = request.args.get("username")
@@ -28,7 +40,7 @@ def get_concerts():
     
     return jsonify({"concerts": concerts})
 
-# API endpoint to get YouTube videos for a specific concert
+# 📌 API endpoint to get YouTube videos for a concert
 @app.route("/api/concert/videos")
 def get_concert_videos():
     artist = request.args.get("artist")
@@ -45,8 +57,7 @@ def get_concert_videos():
     
     return jsonify({"youtube_links": video_links})
 
+# 📌 Ensure Flask runs on Heroku’s assigned port
 if __name__ == "__main__":
-    app.run(debug=True)
-
-
-
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=True, host="0.0.0.0", port=port)
