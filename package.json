@@ -19,6 +19,8 @@
     "update-browserslist-db": "^1.1.2"
   },
   "scripts": {
+    "start": "cd frontend && npm start",
+    "heroku-postbuild": "cd frontend && npm install && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

@@ -10,7 +10,7 @@ API_KEY = os.getenv("SETLISTFM_API_KEY")
 USER_AGENT = os.getenv("USER_AGENT")
 
 # Initialize Flask app
-app = Flask(__name__, static_folder='frontend/build', static_url_path='/')
+app = Flask(__name__, static_folder='frontend/build', static_url_path='')
 CORS(app)  # Enable CORS for all routes
 
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
