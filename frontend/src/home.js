@@ -16,6 +16,9 @@ function Home() {
   const [loading, setLoading] = useState(false);  
   const [revealedConcert, setRevealedConcert] = useState(null);
   const [showContent, setShowContent] = useState(false);
+  const [allConcerts, setAllConcerts] = useState([]); // Store all concerts
+  const [displayedConcerts, setDisplayedConcerts] = useState([]); // Store displayed concerts
+  const [displayCount, setDisplayCount] = useState(20); // Number of concerts to display
 
   const fetchConcerts = () => {
     if (!username) {
@@ -31,9 +34,11 @@ function Home() {
         setLoading(false);  
         if (data.error) {
           setError(data.error);  
-          setConcerts([]);       
+          setAllConcerts([]);
+          setDisplayedConcerts([]);
         } else {
-          setConcerts(data.concerts);  
+          setAllConcerts(data.concerts); // Store all concerts
+          setDisplayedConcerts(data.concerts.slice(0, displayCount)); // Display first 20
           setError("");                
           setShowContent(true); // Show content after fetching concerts
         }
@@ -119,6 +124,17 @@ function Home() {
     );
   });
 
+  // Function to load more concerts
+  const loadMore = () => {
+    const nextBatch = allConcerts.slice(displayedConcerts.length, displayedConcerts.length + 20);
+    setDisplayedConcerts([...displayedConcerts, ...nextBatch]);
+  };
+
+  // Modify your filter logic to use allConcerts for dropdowns
+  const filteredVenues = [...new Set(allConcerts.map(concert => concert.venue.name))];
+  const filteredDates = [...new Set(allConcerts.map(concert => concert.eventDate))];
+  const filteredArtists = [...new Set(allConcerts.map(concert => concert.artist.name))];
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <div className={`text-center transition-transform duration-500 ${showContent ? 'transform -translate-y-16' : ''}`}>
@@ -173,7 +189,7 @@ function Home() {
           </div>
 
           <ul className="space-y-4">
-            {filteredConcerts.map((concert, index) => (
+            {displayedConcerts.map((concert, index) => (
               <li key={index} className="border p-4 rounded shadow-md">
                 <div onClick={() => setRevealedConcert(revealedConcert === index ? null : index)} className="cursor-pointer">
                   <strong>{concert.artist.name}</strong> - {concert.eventDate} <br />
@@ -212,6 +228,15 @@ function Home() {
               </li>
             ))}
           </ul>
+          
+          {displayedConcerts.length < allConcerts.length && (
+            <button 
+              onClick={loadMore} 
+              className="mt-4 bg-blue-500 text-white p-2 rounded w-full"
+            >
+              Load More Concerts
+            </button>
+          )}
         </div>
       )}
     </div>
