@@ -24,8 +24,8 @@ function Home() {
     }
 
     setLoading(true);  
-    console.log('Fetching from:', `${API_URL}/api/concerts?username=${username}`); // Debug log
-    fetch(`${API_URL}/api/concerts?username=${username}`)
+    console.log('Fetching from:', `${API_URL}/api/concerts?username=${username}&max_pages=5`);
+    fetch(`${API_URL}/api/concerts?username=${username}&max_pages=5`)
       .then(response => response.json())
       .then(data => {
         setLoading(false);  

@@ -39,7 +39,8 @@ def get_concerts():
     if not username:
         return jsonify({"error": "Username parameter is required"}), 400
     
-    concerts = get_attended_concerts(username)
+    # Fetch all concerts
+    concerts = get_attended_concerts(username, max_pages=10)  # Adjust max_pages as needed
     if concerts is None:
         return jsonify({"error": "Failed to fetch concerts"}), 500
     
