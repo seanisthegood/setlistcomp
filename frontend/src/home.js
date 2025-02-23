@@ -131,9 +131,7 @@ function Home() {
   };
 
   // Modify your filter logic to use allConcerts for dropdowns
-  const filteredVenues = [...new Set(allConcerts.map(concert => concert.venue.name))];
-  const filteredDates = [...new Set(allConcerts.map(concert => concert.eventDate))];
-  const filteredArtists = [...new Set(allConcerts.map(concert => concert.artist.name))];
+  // Remove duplicate declarations
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
